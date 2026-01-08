@@ -90,7 +90,10 @@ export const createTimerStore = () =>
 
       cancel: () => {
         set((state) => {
-          if (state.session && (state.session.status === 'running' || state.session.status === 'paused')) {
+          if (
+            state.session &&
+            (state.session.status === 'running' || state.session.status === 'paused')
+          ) {
             state.session.status = 'cancelled';
             state.session.endedAt = new Date();
             state.session.updatedAt = new Date();

@@ -5,6 +5,7 @@ Cross-platform Pomodoro timer with Obsidian plugin and Todoist browser extension
 ## Overview
 
 A pomodoro timer ecosystem that can be triggered from where you already are:
+
 - **From Obsidian**: Command palette → "Start Pomodoro"
 - **From Todoist**: Button on task → "Start Pomodoro"
 - **Standalone**: Full app for history, settings, mobile access
