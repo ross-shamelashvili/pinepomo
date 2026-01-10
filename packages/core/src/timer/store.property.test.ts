@@ -247,17 +247,14 @@ describe('TimerStore Property Tests', () => {
 
     it('should use custom duration when provided', () => {
       fc.assert(
-        fc.property(
-          fc.integer({ min: 1, max: 120 }),
-          (durationMins) => {
-            const store = createTimerStore();
-            store.getState().start({ durationMins });
+        fc.property(fc.integer({ min: 1, max: 120 }), (durationMins) => {
+          const store = createTimerStore();
+          store.getState().start({ durationMins });
 
-            const { remainingSeconds, session } = store.getState();
-            expect(remainingSeconds).toBe(durationMins * 60);
-            expect(session?.durationMins).toBe(durationMins);
-          }
-        ),
+          const { remainingSeconds, session } = store.getState();
+          expect(remainingSeconds).toBe(durationMins * 60);
+          expect(session?.durationMins).toBe(durationMins);
+        }),
         { numRuns: 50 }
       );
     });

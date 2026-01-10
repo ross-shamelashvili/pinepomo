@@ -50,11 +50,11 @@ The author (Ross) — a senior software engineering manager who uses Todoist + O
 
 ### 2.2 Secondary Users (Future)
 
-| User Type              | Description                                              |
-| ---------------------- | -------------------------------------------------------- |
-| OSS Contributors       | Developers who want to add integrations or platforms     |
-| Todoist + Obsidian Users | Power users with the same workflow who discover the project |
-| General PKM Users      | Users of other note/task systems once community adds integrations |
+| User Type                | Description                                                       |
+| ------------------------ | ----------------------------------------------------------------- |
+| OSS Contributors         | Developers who want to add integrations or platforms              |
+| Todoist + Obsidian Users | Power users with the same workflow who discover the project       |
+| General PKM Users        | Users of other note/task systems once community adds integrations |
 
 ## 3. User Stories
 
@@ -102,32 +102,32 @@ The author (Ross) — a senior software engineering manager who uses Todoist + O
 
 ### 4.1 Component Features
 
-| Component       | Features                                        | Priority |
-| --------------- | ----------------------------------------------- | -------- |
-| Standalone App  | Full timer UI, settings, history, notifications | P0       |
-| - Web           | PWA, Vercel deployment                          | P0       |
-| - macOS         | Tauri, menu bar                                 | P0       |
-| - Linux         | Tauri, Omarchy compatible                       | P0       |
-| - iOS           | Expo, background timer                          | P0       |
-| Obsidian Plugin | Commands, status bar, hotkeys, auto-log to daily note | P0 |
-| Todoist Extension | Task button, popup, badge, Chrome + Firefox   | P0       |
-| Cross-Device Sync | Supabase backend, eventual consistency        | P0       |
-| Apple Watch     | Companion to iOS app                            | P2       |
-| Android         | Expo supports it; needs test device             | P2       |
+| Component         | Features                                              | Priority |
+| ----------------- | ----------------------------------------------------- | -------- |
+| Standalone App    | Full timer UI, settings, history, notifications       | P0       |
+| - Web             | PWA, Vercel deployment                                | P0       |
+| - macOS           | Tauri, menu bar                                       | P0       |
+| - Linux           | Tauri, Omarchy compatible                             | P0       |
+| - iOS             | Expo, background timer                                | P0       |
+| Obsidian Plugin   | Commands, status bar, hotkeys, auto-log to daily note | P0       |
+| Todoist Extension | Task button, popup, badge, Chrome + Firefox           | P0       |
+| Cross-Device Sync | Supabase backend, eventual consistency                | P0       |
+| Apple Watch       | Companion to iOS app                                  | P2       |
+| Android           | Expo supports it; needs test device                   | P2       |
 
 ### 4.2 Core Timer Features
 
-| Feature                      | Notes                       | Pri |
-| ---------------------------- | --------------------------- | --- |
-| Start / Pause / Resume / Cancel | Core timer controls      | P0  |
-| Configurable durations       | Work/short break/long break | P0  |
-| Notifications                | Timer complete, break over  | P0  |
-| Task name / Todoist task linking | Attach pomodoro to specific task | P0 |
-| Obsidian daily note logging  | Auto-append on complete     | P0  |
-| Offline support              | Works without network       | P0  |
-| Daily goal tracking          | Visual progress             | P1  |
-| History view                 | Past pomodoros by day/week  | P1  |
-| Keyboard shortcuts           | Desktop power-user feature  | P1  |
+| Feature                          | Notes                            | Pri |
+| -------------------------------- | -------------------------------- | --- |
+| Start / Pause / Resume / Cancel  | Core timer controls              | P0  |
+| Configurable durations           | Work/short break/long break      | P0  |
+| Notifications                    | Timer complete, break over       | P0  |
+| Task name / Todoist task linking | Attach pomodoro to specific task | P0  |
+| Obsidian daily note logging      | Auto-append on complete          | P0  |
+| Offline support                  | Works without network            | P0  |
+| Daily goal tracking              | Visual progress                  | P1  |
+| History view                     | Past pomodoros by day/week       | P1  |
+| Keyboard shortcuts               | Desktop power-user feature       | P1  |
 
 ## 5. Key User Flows
 
@@ -172,12 +172,12 @@ The author (Ross) — a senior software engineering manager who uses Todoist + O
 
 ### 6.2 Open Source Success Criteria
 
-| Timeframe | Metric                  | Target        |
-| --------- | ----------------------- | ------------- |
-| 3 months  | GitHub stars            | 100+          |
-| 3 months  | External contributors   | 1+ merged PR  |
-| 6 months  | Community integrations  | 1+ new integration |
-| 6 months  | Obsidian plugin downloads | 500+        |
+| Timeframe | Metric                    | Target             |
+| --------- | ------------------------- | ------------------ |
+| 3 months  | GitHub stars              | 100+               |
+| 3 months  | External contributors     | 1+ merged PR       |
+| 6 months  | Community integrations    | 1+ new integration |
+| 6 months  | Obsidian plugin downloads | 500+               |
 
 ## 7. Scope Boundaries
 
@@ -202,11 +202,11 @@ The author (Ross) — a senior software engineering manager who uses Todoist + O
 
 If commercialization becomes relevant: **Free Local + Paid Sync**
 
-| Tier      | Features                           | Price       |
-| --------- | ---------------------------------- | ----------- |
-| Free      | Full app + plugins, single device, local storage | $0 |
-| Pro       | Cross-device sync, cloud backup    | ~$3-5/month |
-| Self-Host | Full features, own Supabase        | $0 (OSS)    |
+| Tier      | Features                                         | Price       |
+| --------- | ------------------------------------------------ | ----------- |
+| Free      | Full app + plugins, single device, local storage | $0          |
+| Pro       | Cross-device sync, cloud backup                  | ~$3-5/month |
+| Self-Host | Full features, own Supabase                      | $0 (OSS)    |
 
 **Note:** Commercialization is not a v1 goal.
 

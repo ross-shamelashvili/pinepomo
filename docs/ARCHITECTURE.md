@@ -9,12 +9,12 @@
 
 ## Revision History
 
-| Ver | Date       | Changes                                                    |
-| --- | ---------- | ---------------------------------------------------------- |
-| 1.0 | 2025-01-06 | Initial draft                                              |
-| 2.0 | 2025-01-06 | Added Gemini feedback: Vercel, CI/CD, testing              |
+| Ver | Date       | Changes                                                         |
+| --- | ---------- | --------------------------------------------------------------- |
+| 1.0 | 2025-01-06 | Initial draft                                                   |
+| 2.0 | 2025-01-06 | Added Gemini feedback: Vercel, CI/CD, testing                   |
 | 3.0 | 2025-01-06 | Added ChatGPT feedback: StoragePort, Immer, event_id, timezones |
-| 4.0 | 2025-01-06 | Added Obsidian plugin + Todoist extension as P0 components |
+| 4.0 | 2025-01-06 | Added Obsidian plugin + Todoist extension as P0 components      |
 
 ## 1. Executive Summary
 
@@ -30,16 +30,16 @@ All components share the same core logic and sync to the same backend, providing
 
 ### 2.1 Component Matrix
 
-| Component              | Priority | Notes                              |
-| ---------------------- | -------- | ---------------------------------- |
-| Web App                | P0       | PWA, deployed on Vercel            |
-| macOS Desktop App      | P0       | Tauri, menu bar presence           |
-| Linux Desktop App      | P0       | Tauri, Omarchy compatible          |
-| iOS App                | P0       | Expo, background timer support     |
-| Obsidian Plugin        | P0       | TypeScript, command palette + status bar |
-| Todoist Browser Extension | P0    | Chrome/Firefox, button on tasks    |
-| Apple Watch App        | P2       | Deferred to v2                     |
-| Android App            | P2       | Deferred, no test device           |
+| Component                 | Priority | Notes                                    |
+| ------------------------- | -------- | ---------------------------------------- |
+| Web App                   | P0       | PWA, deployed on Vercel                  |
+| macOS Desktop App         | P0       | Tauri, menu bar presence                 |
+| Linux Desktop App         | P0       | Tauri, Omarchy compatible                |
+| iOS App                   | P0       | Expo, background timer support           |
+| Obsidian Plugin           | P0       | TypeScript, command palette + status bar |
+| Todoist Browser Extension | P0       | Chrome/Firefox, button on tasks          |
+| Apple Watch App           | P2       | Deferred to v2                           |
+| Android App               | P2       | Deferred, no test device                 |
 
 ### 2.2 Functional Requirements
 
@@ -84,17 +84,17 @@ The architecture consists of three layers: trigger points (where users interact)
 
 ### 3.2 Technology Stack
 
-| Layer        | Technology          | Notes                          |
-| ------------ | ------------------- | ------------------------------ |
-| Monorepo     | pnpm + Turborepo    | Shared across all packages     |
-| Core Logic   | TypeScript          | Consumed by all trigger points |
-| State        | Zustand + Immer     | Timer state machine            |
-| Web App      | Vite + React        | Deployed on Vercel             |
-| Desktop Apps | Tauri v2            | macOS + Linux                  |
-| iOS App      | Expo                | Background timer support       |
-| Obsidian Plugin | TypeScript       | Obsidian Plugin API            |
-| Todoist Extension | TypeScript     | WebExtension API (Chrome/Firefox) |
-| Backend      | Supabase            | Auth, Postgres, Realtime       |
+| Layer             | Technology       | Notes                             |
+| ----------------- | ---------------- | --------------------------------- |
+| Monorepo          | pnpm + Turborepo | Shared across all packages        |
+| Core Logic        | TypeScript       | Consumed by all trigger points    |
+| State             | Zustand + Immer  | Timer state machine               |
+| Web App           | Vite + React     | Deployed on Vercel                |
+| Desktop Apps      | Tauri v2         | macOS + Linux                     |
+| iOS App           | Expo             | Background timer support          |
+| Obsidian Plugin   | TypeScript       | Obsidian Plugin API               |
+| Todoist Extension | TypeScript       | WebExtension API (Chrome/Firefox) |
+| Backend           | Supabase         | Auth, Postgres, Realtime          |
 
 ### 3.3 Project Structure
 
@@ -188,11 +188,11 @@ The plugin uses Obsidian's built-in data storage for settings, and @pomodoro/cor
 
 The extension consists of three parts:
 
-| Component      | Purpose                                                       |
-| -------------- | ------------------------------------------------------------- |
+| Component      | Purpose                                                                     |
+| -------------- | --------------------------------------------------------------------------- |
 | Content Script | Injects "Start Pomodoro" button into Todoist DOM; extracts task name and ID |
-| Service Worker | Runs @pomodoro/core timer; manages sync; updates badge        |
-| Popup          | Small UI showing current timer; pause/cancel controls         |
+| Service Worker | Runs @pomodoro/core timer; manages sync; updates badge                      |
+| Popup          | Small UI showing current timer; pause/cancel controls                       |
 
 ```typescript
 // todoist-extension/content.ts
@@ -273,25 +273,25 @@ updated_at      TIMESTAMPTZ DEFAULT now()
 
 ## 7. Deployment
 
-| Component        | Target                        | Automation              |
-| ---------------- | ----------------------------- | ----------------------- |
-| Web App          | Vercel                        | Auto-deploy on push     |
-| Desktop Apps     | GitHub Releases               | GitHub Actions on tag   |
-| iOS App          | App Store                     | EAS Build via Actions   |
-| Obsidian Plugin  | Obsidian Community Plugins    | GitHub Actions on tag   |
-| Todoist Extension| Chrome Web Store + Firefox Add-ons | GitHub Actions on tag |
-| Backend          | Supabase Cloud                | supabase db push        |
+| Component         | Target                             | Automation            |
+| ----------------- | ---------------------------------- | --------------------- |
+| Web App           | Vercel                             | Auto-deploy on push   |
+| Desktop Apps      | GitHub Releases                    | GitHub Actions on tag |
+| iOS App           | App Store                          | EAS Build via Actions |
+| Obsidian Plugin   | Obsidian Community Plugins         | GitHub Actions on tag |
+| Todoist Extension | Chrome Web Store + Firefox Add-ons | GitHub Actions on tag |
+| Backend           | Supabase Cloud                     | supabase db push      |
 
 ## 8. Testing Strategy
 
-| Layer            | Tool           | Focus                          |
-| ---------------- | -------------- | ------------------------------ |
-| Core Unit Tests  | Vitest         | Timer state machine, sync logic |
-| Property Tests   | fast-check     | Timer state transition sequences |
-| Web E2E          | Playwright     | Full user flows                |
-| Mobile E2E       | Maestro        | iOS flows, background timer    |
-| Obsidian Plugin  | Manual + Vitest| Command execution, status bar  |
-| Browser Extension| Playwright + Manual | Content script injection, sync |
+| Layer             | Tool                | Focus                            |
+| ----------------- | ------------------- | -------------------------------- |
+| Core Unit Tests   | Vitest              | Timer state machine, sync logic  |
+| Property Tests    | fast-check          | Timer state transition sequences |
+| Web E2E           | Playwright          | Full user flows                  |
+| Mobile E2E        | Maestro             | iOS flows, background timer      |
+| Obsidian Plugin   | Manual + Vitest     | Command execution, status bar    |
+| Browser Extension | Playwright + Manual | Content script injection, sync   |
 
 ## 9. Implementation Plan
 
