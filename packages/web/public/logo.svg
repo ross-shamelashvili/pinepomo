@@ -1,0 +1,30 @@
+<svg width="140" height="32" viewBox="0 0 140 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Pomodoro + Timer logo -->
+  <g>
+    <!-- Tomato/Pomodoro -->
+    <circle cx="16" cy="8" r="5" fill="#dc2626" fill-opacity="0.2" stroke="#dc2626" stroke-width="2"/>
+
+    <!-- Tomato stem/leaf -->
+    <path d="M16 3L14 5.5L16 4.5L18 5.5L16 3z" fill="#059669" stroke="#059669" stroke-width="0.5" stroke-linejoin="round"/>
+
+    <!-- Pill timer shape -->
+    <rect x="6" y="17" width="20" height="8" rx="4" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- Timer progress indicator -->
+    <path d="M10 21L15 21" stroke="#059669" stroke-width="2" stroke-linecap="round"/>
+
+    <!-- Tech connection -->
+    <path d="M16 13L16 17" stroke="#059669" stroke-width="2" stroke-dasharray="2,2" stroke-linecap="round"/>
+  </g>
+
+  <!-- Pinepomo text -->
+  <text x="36" y="21" font-family="system-ui, -apple-system, sans-serif" font-size="18" font-weight="bold" fill="url(#gradient)">Pinepomo</text>
+
+  <!-- Gradient definition (green to red) -->
+  <defs>
+    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#059669;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#dc2626;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+</svg>
