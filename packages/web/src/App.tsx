@@ -38,7 +38,7 @@ function App() {
     <div className="min-h-screen flex flex-col">
       {/* Header */}
       <header className="flex items-center justify-between px-6 py-4">
-        <h1 className="text-xl font-medium tracking-tight text-main">Pinepomo</h1>
+        <img src="/logo.svg" alt="Pinepomo" className="h-8" />
         <Button
           variant="ghost"
           size="sm"
