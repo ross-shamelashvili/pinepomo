@@ -1,8 +1,9 @@
 import { useEffect, useRef } from 'react';
-import { X, Check } from 'lucide-react';
+import { X, Check, Sun, Moon } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { cn } from '@/lib/cn';
 import { themeList, type ThemeId } from '@/lib/themes';
+import type { Mode } from '@/hooks/useTheme';
 import type { TimerConfig } from '@pinepomo/core';
 
 interface SettingsModalProps {
@@ -12,6 +13,8 @@ interface SettingsModalProps {
   onConfigChange: (config: Partial<TimerConfig>) => void;
   themeId: ThemeId;
   onThemeChange: (id: ThemeId) => void;
+  mode: Mode;
+  onModeChange: (mode: Mode) => void;
 }
 
 interface SettingRowProps {
@@ -25,8 +28,8 @@ interface SettingRowProps {
 
 function SettingRow({ label, value, onChange, min = 1, max = 120, unit = 'min' }: SettingRowProps) {
   return (
-    <div className="flex items-center justify-between py-3 border-b border-surface-800 last:border-0">
-      <span className="text-surface-300">{label}</span>
+    <div className="flex items-center justify-between py-3 border-b border-muted last:border-0">
+      <span className="text-secondary">{label}</span>
       <div className="flex items-center gap-2">
         <input
           type="number"
@@ -38,12 +41,12 @@ function SettingRow({ label, value, onChange, min = 1, max = 120, unit = 'min' }
             'w-16 text-center',
             'px-2 py-1.5',
             'rounded-lg',
-            'bg-surface-800 border border-surface-700',
-            'text-surface-100',
+            'bg-elevated border border-muted',
+            'text-main',
             'focus:outline-none focus:border-primary-600/50'
           )}
         />
-        <span className="text-surface-500 text-sm w-8">{unit}</span>
+        <span className="text-muted text-sm w-8">{unit}</span>
       </div>
     </div>
   );
@@ -56,6 +59,8 @@ export function SettingsModal({
   onConfigChange,
   themeId,
   onThemeChange,
+  mode,
+  onModeChange,
 }: SettingsModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
 
@@ -105,14 +110,14 @@ export function SettingsModal({
           'relative w-full max-w-md',
           'p-6',
           'rounded-2xl',
-          'bg-surface-900 border border-surface-800',
+          'bg-card border border-muted',
           'animate-scale-in',
           'focus:outline-none'
         )}
       >
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
-          <h2 id="settings-title" className="text-lg font-medium text-surface-100">
+          <h2 id="settings-title" className="text-lg font-medium text-main">
             Settings
           </h2>
           <Button variant="ghost" size="sm" onClick={onClose} aria-label="Close settings">
@@ -120,10 +125,47 @@ export function SettingsModal({
           </Button>
         </div>
 
+        {/* Mode Toggle (Light/Dark) */}
+        <div className="mb-6">
+          <h3 className="text-sm font-medium text-secondary uppercase tracking-wider mb-3">
+            Mode
+          </h3>
+          <div className="flex gap-2">
+            <button
+              onClick={() => onModeChange('light')}
+              className={cn(
+                'flex-1 flex items-center justify-center gap-2 py-2.5',
+                'rounded-lg border',
+                'transition-all duration-200',
+                mode === 'light'
+                  ? 'border-primary-500 bg-primary-500/10 text-primary-400'
+                  : 'border-muted text-secondary hover:bg-elevated'
+              )}
+            >
+              <Sun className="w-4 h-4" />
+              <span className="text-sm">Light</span>
+            </button>
+            <button
+              onClick={() => onModeChange('dark')}
+              className={cn(
+                'flex-1 flex items-center justify-center gap-2 py-2.5',
+                'rounded-lg border',
+                'transition-all duration-200',
+                mode === 'dark'
+                  ? 'border-primary-500 bg-primary-500/10 text-primary-400'
+                  : 'border-muted text-secondary hover:bg-elevated'
+              )}
+            >
+              <Moon className="w-4 h-4" />
+              <span className="text-sm">Dark</span>
+            </button>
+          </div>
+        </div>
+
         {/* Theme Settings */}
         <div className="mb-6">
-          <h3 className="text-sm font-medium text-surface-400 uppercase tracking-wider mb-3">
-            Theme
+          <h3 className="text-sm font-medium text-secondary uppercase tracking-wider mb-3">
+            Color
           </h3>
           <div className="grid grid-cols-5 gap-2">
             {themeList.map((theme) => (
@@ -136,18 +178,18 @@ export function SettingsModal({
                   'transition-all duration-200',
                   themeId === theme.id
                     ? 'border-primary-500 bg-primary-500/10'
-                    : 'border-surface-700 hover:border-surface-600 hover:bg-surface-800/50'
+                    : 'border-muted hover:bg-elevated'
                 )}
                 aria-pressed={themeId === theme.id}
                 title={theme.name}
               >
                 <div
-                  className="w-5 h-5 rounded-full border border-surface-600 flex items-center justify-center"
+                  className="w-5 h-5 rounded-full border border-muted flex items-center justify-center"
                   style={{ backgroundColor: theme.colors.primary[500] }}
                 >
                   {themeId === theme.id && <Check className="w-2.5 h-2.5 text-white" />}
                 </div>
-                <span className="text-[10px] text-surface-400 truncate w-full text-center">
+                <span className="text-[10px] text-secondary truncate w-full text-center">
                   {theme.name}
                 </span>
               </button>
@@ -157,7 +199,7 @@ export function SettingsModal({
 
         {/* Timer Settings */}
         <div className="mb-6">
-          <h3 className="text-sm font-medium text-surface-400 uppercase tracking-wider mb-3">
+          <h3 className="text-sm font-medium text-secondary uppercase tracking-wider mb-3">
             Timer
           </h3>
           <SettingRow
@@ -179,7 +221,7 @@ export function SettingsModal({
 
         {/* Goal Settings */}
         <div>
-          <h3 className="text-sm font-medium text-surface-400 uppercase tracking-wider mb-3">
+          <h3 className="text-sm font-medium text-secondary uppercase tracking-wider mb-3">
             Daily Goal
           </h3>
           <SettingRow

@@ -61,10 +61,31 @@
 @layer base {
   html {
     @apply antialiased;
+    /* Dark mode surface mappings (default) */
+    --surface-bg: var(--color-surface-950);
+    --surface-card: var(--color-surface-900);
+    --surface-elevated: var(--color-surface-800);
+    --surface-border: var(--color-surface-700);
+    --surface-text: var(--color-surface-50);
+    --surface-text-secondary: var(--color-surface-400);
+    --surface-text-muted: var(--color-surface-500);
+  }
+
+  /* Light mode surface mappings */
+  html.light {
+    --surface-bg: var(--color-surface-50);
+    --surface-card: var(--color-surface-100);
+    --surface-elevated: var(--color-surface-200);
+    --surface-border: var(--color-surface-300);
+    --surface-text: var(--color-surface-900);
+    --surface-text-secondary: var(--color-surface-600);
+    --surface-text-muted: var(--color-surface-500);
   }
 
   body {
-    @apply bg-surface-950 text-surface-50 min-h-screen font-sans;
+    background-color: var(--surface-bg);
+    color: var(--surface-text);
+    @apply min-h-screen font-sans;
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
   }
 
@@ -73,12 +94,44 @@
   }
 
   :focus-visible {
-    @apply outline-none ring-2 ring-primary-500/50 ring-offset-2 ring-offset-surface-950;
+    @apply outline-none ring-2 ring-primary-500/50 ring-offset-2;
+    ring-offset-color: var(--surface-bg);
   }
 }
 
 @utility font-tabular {
   font-variant-numeric: tabular-nums;
+}
+
+/* Semantic background utilities */
+@utility bg-app {
+  background-color: var(--surface-bg);
+}
+
+@utility bg-card {
+  background-color: var(--surface-card);
+}
+
+@utility bg-elevated {
+  background-color: var(--surface-elevated);
+}
+
+/* Semantic text utilities */
+@utility text-main {
+  color: var(--surface-text);
+}
+
+@utility text-secondary {
+  color: var(--surface-text-secondary);
+}
+
+@utility text-muted {
+  color: var(--surface-text-muted);
+}
+
+/* Semantic border utilities */
+@utility border-muted {
+  border-color: var(--surface-border);
 }
 
 @media (prefers-reduced-motion: reduce) {

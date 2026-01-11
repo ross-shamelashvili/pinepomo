@@ -13,7 +13,7 @@ function App() {
   const { session, remainingSeconds, config, setConfig } = timerStore();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [completedToday, setCompletedToday] = useState(0);
-  const { themeId, setTheme } = useTheme();
+  const { themeId, setTheme, mode, setMode } = useTheme();
 
   // Set up tick interval
   useEffect(() => {
@@ -38,7 +38,7 @@ function App() {
     <div className="min-h-screen flex flex-col">
       {/* Header */}
       <header className="flex items-center justify-between px-6 py-4">
-        <h1 className="text-xl font-medium tracking-tight text-surface-100">Pinepomo</h1>
+        <h1 className="text-xl font-medium tracking-tight text-main">Pinepomo</h1>
         <Button
           variant="ghost"
           size="sm"
@@ -71,6 +71,8 @@ function App() {
         onConfigChange={setConfig}
         themeId={themeId}
         onThemeChange={setTheme}
+        mode={mode}
+        onModeChange={setMode}
       />
     </div>
   );

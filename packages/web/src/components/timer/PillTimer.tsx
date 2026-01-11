@@ -57,8 +57,8 @@ export function PillTimer({
         'relative flex flex-col items-center justify-center',
         'min-w-80 max-w-md px-12 py-8',
         'rounded-pill',
-        'bg-surface-900',
-        'border',
+        'bg-card',
+        'border border-muted',
         'overflow-hidden',
         'transition-all duration-300 ease-out',
         config.border,
@@ -84,7 +84,7 @@ export function PillTimer({
         className={cn(
           'relative z-10',
           'font-mono text-5xl sm:text-6xl font-light',
-          'text-surface-50',
+          'text-main',
           'tracking-tight font-tabular'
         )}
       >
@@ -96,7 +96,7 @@ export function PillTimer({
         className={cn(
           'relative z-10 mt-2',
           'text-xs uppercase tracking-widest',
-          'text-surface-400',
+          'text-secondary',
           'font-medium',
           'max-w-full truncate px-4'
         )}

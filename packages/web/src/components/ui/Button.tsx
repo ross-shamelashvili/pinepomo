@@ -13,14 +13,14 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 const variantStyles: Record<ButtonVariant, string> = {
   primary: cn('bg-primary-600 border border-primary-500', 'text-white', 'hover:bg-primary-500'),
   secondary: cn(
-    'bg-surface-800 border border-surface-700',
-    'text-surface-300',
-    'hover:bg-surface-700 hover:text-surface-200'
+    'bg-elevated border border-muted',
+    'text-secondary',
+    'hover:opacity-80'
   ),
   ghost: cn(
     'bg-transparent border border-transparent',
-    'text-surface-500',
-    'hover:bg-surface-800/50 hover:text-surface-400'
+    'text-muted',
+    'hover:bg-elevated hover:opacity-80'
   ),
   danger: cn('bg-red-600/20 border border-red-600/30', 'text-red-400', 'hover:bg-red-600/30'),
 };
