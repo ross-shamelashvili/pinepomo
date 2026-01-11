@@ -1,4 +1,14 @@
-export type ThemeId = 'forest' | 'ocean' | 'sunset' | 'minimal';
+export type ThemeId =
+  | 'forest'
+  | 'ocean'
+  | 'sunset'
+  | 'minimal'
+  | 'dracula'
+  | 'nord'
+  | 'catppuccin'
+  | 'tokyoNight'
+  | 'gruvbox'
+  | 'monokai';
 
 export interface Theme {
   id: ThemeId;
@@ -21,6 +31,7 @@ export interface Theme {
 }
 
 export const themes: Record<ThemeId, Theme> = {
+  // === Original themes ===
   forest: {
     id: 'forest',
     name: 'Forest',
@@ -94,6 +105,122 @@ export const themes: Record<ThemeId, Theme> = {
         400: '#a3a3a3',
         500: '#737373',
         600: '#525252',
+      },
+    },
+  },
+
+  // === Nerd themes ===
+  dracula: {
+    id: 'dracula',
+    name: 'Dracula',
+    colors: {
+      primary: {
+        50: '#fcf5ff',
+        100: '#f3e6ff',
+        400: '#bd93f9',
+        500: '#bd93f9',
+        600: '#a855f7',
+        700: '#9333ea',
+      },
+      accent: {
+        400: '#ff79c6',
+        500: '#ff79c6',
+        600: '#ec4899',
+      },
+    },
+  },
+  nord: {
+    id: 'nord',
+    name: 'Nord',
+    colors: {
+      primary: {
+        50: '#eceff4',
+        100: '#e5e9f0',
+        400: '#88c0d0',
+        500: '#81a1c1',
+        600: '#5e81ac',
+        700: '#4c6a94',
+      },
+      accent: {
+        400: '#a3be8c',
+        500: '#8fbcbb',
+        600: '#7aa89f',
+      },
+    },
+  },
+  catppuccin: {
+    id: 'catppuccin',
+    name: 'Catppuccin',
+    colors: {
+      primary: {
+        50: '#f5e6f5',
+        100: '#ecdcf5',
+        400: '#cba6f7',
+        500: '#cba6f7',
+        600: '#b48bf2',
+        700: '#9d6de8',
+      },
+      accent: {
+        400: '#f5c2e7',
+        500: '#f38ba8',
+        600: '#e85d8c',
+      },
+    },
+  },
+  tokyoNight: {
+    id: 'tokyoNight',
+    name: 'Tokyo Night',
+    colors: {
+      primary: {
+        50: '#e6f0ff',
+        100: '#cce0ff',
+        400: '#7aa2f7',
+        500: '#7aa2f7',
+        600: '#5d8df0',
+        700: '#4078e8',
+      },
+      accent: {
+        400: '#bb9af7',
+        500: '#9d7cd8',
+        600: '#8561c9',
+      },
+    },
+  },
+  gruvbox: {
+    id: 'gruvbox',
+    name: 'Gruvbox',
+    colors: {
+      primary: {
+        50: '#fbf1c7',
+        100: '#f2e5bc',
+        400: '#b8bb26',
+        500: '#98971a',
+        600: '#79740e',
+        700: '#5a5a0a',
+      },
+      accent: {
+        400: '#fabd2f',
+        500: '#d79921',
+        600: '#b57614',
+      },
+    },
+  },
+  monokai: {
+    id: 'monokai',
+    name: 'Monokai',
+    colors: {
+      primary: {
+        50: '#f8f8f2',
+        100: '#f0f0ea',
+        400: '#a6e22e',
+        500: '#a6e22e',
+        600: '#8bc220',
+        700: '#6f9a18',
+      },
+      accent: {
+        400: '#f92672',
+        500: '#f92672',
+        600: '#d41d5c',
       },
     },
   },
