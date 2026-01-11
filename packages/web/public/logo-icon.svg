@@ -1,0 +1,17 @@
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Pomodoro + Timer + Tech combination -->
+  <!-- Tomato/Pomodoro -->
+  <circle cx="12" cy="6" r="4" fill="#dc2626" fill-opacity="0.2" stroke="#dc2626" stroke-width="2"/>
+
+  <!-- Tomato stem/leaf -->
+  <path d="M12 2L10.5 4L12 3.5L13.5 4L12 2z" fill="#059669" stroke="#059669" stroke-width="0.5" stroke-linejoin="round"/>
+
+  <!-- Pill timer shape -->
+  <rect x="5" y="14" width="14" height="6" rx="3" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Timer progress indicator (left half filled) -->
+  <path d="M8 17L11 17" stroke="#059669" stroke-width="2" stroke-linecap="round"/>
+
+  <!-- Tech connection (tomato to timer) -->
+  <path d="M12 10L12 14" stroke="#059669" stroke-width="2" stroke-dasharray="2,2" stroke-linecap="round"/>
+</svg>

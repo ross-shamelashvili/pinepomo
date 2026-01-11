@@ -1,5 +1,20 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <circle cx="50" cy="55" r="40" fill="#e53935"/>
-  <ellipse cx="50" cy="20" rx="8" ry="12" fill="#43a047"/>
-  <path d="M50 8 Q55 15 50 20 Q45 15 50 8" fill="#2e7d32"/>
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="16" cy="16" r="16" fill="#f0fdf4"/>
+
+  <!-- Pomodoro + Timer favicon -->
+  <!-- Tomato/Pomodoro -->
+  <circle cx="16" cy="9" r="5" fill="#dc2626" fill-opacity="0.2" stroke="#dc2626" stroke-width="1.5"/>
+
+  <!-- Tomato stem/leaf -->
+  <path d="M16 4L14 6.5L16 5.5L18 6.5L16 4z" fill="#059669" stroke="#059669" stroke-width="0.5" stroke-linejoin="round"/>
+
+  <!-- Pill timer shape -->
+  <rect x="6" y="18" width="20" height="7" rx="3.5" fill="none" stroke="#059669" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Timer progress indicator -->
+  <path d="M10 21.5L15 21.5" stroke="#059669" stroke-width="1.5" stroke-linecap="round"/>
+
+  <!-- Tech connection -->
+  <path d="M16 14L16 18" stroke="#059669" stroke-width="1.5" stroke-dasharray="1.5,1.5" stroke-linecap="round"/>
 </svg>
