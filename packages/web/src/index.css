@@ -1,33 +1,19 @@
 @import 'tailwindcss';
 
 @theme {
-  /* Pine (Primary) */
-  --color-pine-50: #f0f7f4;
-  --color-pine-100: #dbebe2;
-  --color-pine-200: #bad7c9;
-  --color-pine-300: #8dbbaa;
-  --color-pine-400: #5f9c87;
-  --color-pine-500: #3f7f6b;
-  --color-pine-600: #2f6555;
-  --color-pine-700: #275146;
-  --color-pine-800: #21423a;
-  --color-pine-900: #1c3730;
-  --color-pine-950: #0e1f1b;
+  /* Dynamic theme colors (set via JS) */
+  --color-primary-50: #f0f7f4;
+  --color-primary-100: #dbebe2;
+  --color-primary-400: #5f9c87;
+  --color-primary-500: #3f7f6b;
+  --color-primary-600: #2f6555;
+  --color-primary-700: #275146;
 
-  /* Bark (Accent) */
-  --color-bark-50: #f9f6f3;
-  --color-bark-100: #f0e9e1;
-  --color-bark-200: #e0d1c2;
-  --color-bark-300: #cdb49d;
-  --color-bark-400: #b89476;
-  --color-bark-500: #a97b5a;
-  --color-bark-600: #9c6a4e;
-  --color-bark-700: #825643;
-  --color-bark-800: #6a473a;
-  --color-bark-900: #573c32;
-  --color-bark-950: #2e1f19;
+  --color-accent-400: #b89476;
+  --color-accent-500: #a97b5a;
+  --color-accent-600: #9c6a4e;
 
-  /* Surface (Dark mode) */
+  /* Surface (Dark mode - static) */
   --color-surface-50: #fafafa;
   --color-surface-100: #f5f5f5;
   --color-surface-200: #e5e5e5;
@@ -42,11 +28,6 @@
 
   /* Custom border radius */
   --radius-pill: 9999px;
-
-  /* Custom font sizes */
-  --font-size-timer: 3.5rem;
-  --font-size-timer--line-height: 1;
-  --font-size-timer--letter-spacing: -0.02em;
 
   /* Fonts */
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -88,11 +69,11 @@
   }
 
   ::selection {
-    @apply bg-pine-500/30;
+    @apply bg-primary-500/30;
   }
 
   :focus-visible {
-    @apply outline-none ring-2 ring-pine-500/50 ring-offset-2 ring-offset-surface-950;
+    @apply outline-none ring-2 ring-primary-500/50 ring-offset-2 ring-offset-surface-950;
   }
 }
 

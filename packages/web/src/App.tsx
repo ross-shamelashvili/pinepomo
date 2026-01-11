@@ -6,12 +6,14 @@ import { TimerControls } from '@/components/timer/TimerControls';
 import { DailyProgress } from '@/components/progress/DailyProgress';
 import { SettingsModal } from '@/components/settings/SettingsModal';
 import { Button } from '@/components/ui/Button';
+import { useTheme } from '@/hooks/useTheme';
 
 function App() {
   const timerStore = useMemo(() => createTimerStore(), []);
   const { session, remainingSeconds, config, setConfig } = timerStore();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [completedToday, setCompletedToday] = useState(0);
+  const { themeId, setTheme } = useTheme();
 
   // Set up tick interval
   useEffect(() => {
@@ -67,6 +69,8 @@ function App() {
         onClose={() => setSettingsOpen(false)}
         config={config}
         onConfigChange={setConfig}
+        themeId={themeId}
+        onThemeChange={setTheme}
       />
     </div>
   );

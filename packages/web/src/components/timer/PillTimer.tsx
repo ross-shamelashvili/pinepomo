@@ -16,13 +16,13 @@ const statusConfig = {
     label: 'Ready',
   },
   running: {
-    border: 'border-pine-500',
-    fill: 'bg-pine-600',
+    border: 'border-primary-500',
+    fill: 'bg-primary-600',
     label: 'Focus',
   },
   paused: {
-    border: 'border-bark-500',
-    fill: 'bg-bark-600',
+    border: 'border-accent-500',
+    fill: 'bg-accent-600',
     label: 'Paused',
   },
   completed: {

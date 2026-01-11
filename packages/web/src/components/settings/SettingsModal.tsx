@@ -1,7 +1,8 @@
 import { useEffect, useRef } from 'react';
-import { X } from 'lucide-react';
+import { X, Check } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { cn } from '@/lib/cn';
+import { themeList, type ThemeId } from '@/lib/themes';
 import type { TimerConfig } from '@pinepomo/core';
 
 interface SettingsModalProps {
@@ -9,6 +10,8 @@ interface SettingsModalProps {
   onClose: () => void;
   config: TimerConfig;
   onConfigChange: (config: Partial<TimerConfig>) => void;
+  themeId: ThemeId;
+  onThemeChange: (id: ThemeId) => void;
 }
 
 interface SettingRowProps {
@@ -37,7 +40,7 @@ function SettingRow({ label, value, onChange, min = 1, max = 120, unit = 'min' }
             'rounded-lg',
             'bg-surface-800 border border-surface-700',
             'text-surface-100',
-            'focus:outline-none focus:border-pine-600/50'
+            'focus:outline-none focus:border-primary-600/50'
           )}
         />
         <span className="text-surface-500 text-sm w-8">{unit}</span>
@@ -46,7 +49,14 @@ function SettingRow({ label, value, onChange, min = 1, max = 120, unit = 'min' }
   );
 }
 
-export function SettingsModal({ isOpen, onClose, config, onConfigChange }: SettingsModalProps) {
+export function SettingsModal({
+  isOpen,
+  onClose,
+  config,
+  onConfigChange,
+  themeId,
+  onThemeChange,
+}: SettingsModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -108,6 +118,38 @@ export function SettingsModal({ isOpen, onClose, config, onConfigChange }: Setti
           <Button variant="ghost" size="sm" onClick={onClose} aria-label="Close settings">
             <X className="w-5 h-5" />
           </Button>
+        </div>
+
+        {/* Theme Settings */}
+        <div className="mb-6">
+          <h3 className="text-sm font-medium text-surface-400 uppercase tracking-wider mb-3">
+            Theme
+          </h3>
+          <div className="flex gap-2">
+            {themeList.map((theme) => (
+              <button
+                key={theme.id}
+                onClick={() => onThemeChange(theme.id)}
+                className={cn(
+                  'flex-1 flex flex-col items-center gap-2 p-3',
+                  'rounded-xl border',
+                  'transition-all duration-200',
+                  themeId === theme.id
+                    ? 'border-primary-500 bg-primary-500/10'
+                    : 'border-surface-700 hover:border-surface-600 hover:bg-surface-800/50'
+                )}
+                aria-pressed={themeId === theme.id}
+              >
+                <div
+                  className="w-6 h-6 rounded-full border-2 border-surface-700 flex items-center justify-center"
+                  style={{ backgroundColor: theme.colors.primary[500] }}
+                >
+                  {themeId === theme.id && <Check className="w-3 h-3 text-white" />}
+                </div>
+                <span className="text-xs text-surface-400">{theme.name}</span>
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Timer Settings */}

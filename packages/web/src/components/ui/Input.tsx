@@ -27,7 +27,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             'text-surface-100',
             'placeholder:text-surface-500',
             'transition-all duration-200',
-            'focus:outline-none focus:border-pine-600/50 focus:ring-1 focus:ring-pine-600/30',
+            'focus:outline-none focus:border-primary-600/50 focus:ring-1 focus:ring-primary-600/30',
             error && 'border-red-500/50 focus:border-red-500/50 focus:ring-red-500/30',
             className
           )}

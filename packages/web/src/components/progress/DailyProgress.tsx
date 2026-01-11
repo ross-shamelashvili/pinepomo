@@ -23,7 +23,7 @@ export function DailyProgress({ completed, goal, className }: DailyProgressProps
             className={cn(
               'w-2.5 h-2.5 rounded-full',
               'transition-colors duration-300',
-              isCompleted ? 'bg-pine-500' : 'bg-surface-800 border border-surface-700'
+              isCompleted ? 'bg-primary-500' : 'bg-surface-800 border border-surface-700'
             )}
             aria-hidden="true"
           />

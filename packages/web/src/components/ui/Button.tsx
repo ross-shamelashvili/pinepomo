@@ -11,7 +11,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantStyles: Record<ButtonVariant, string> = {
-  primary: cn('bg-pine-600 border border-pine-500', 'text-white', 'hover:bg-pine-500'),
+  primary: cn('bg-primary-600 border border-primary-500', 'text-white', 'hover:bg-primary-500'),
   secondary: cn(
     'bg-surface-800 border border-surface-700',
     'text-surface-300',
@@ -45,7 +45,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           'disabled:opacity-50 disabled:pointer-events-none',
           variantStyles[variant],
           sizeStyles[size],
-          variant === 'primary' && 'focus:ring-pine-500/50',
+          variant === 'primary' && 'focus:ring-primary-500/50',
           variant === 'secondary' && 'focus:ring-surface-500/50',
           variant === 'ghost' && 'focus:ring-surface-500/50',
           variant === 'danger' && 'focus:ring-red-500/50',
