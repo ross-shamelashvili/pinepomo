@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/Button';
 import { useTheme } from '@/hooks/useTheme';
 import { useNotifications, NOTIFICATION_MESSAGES } from '@/hooks/useNotifications';
 import { useTodoistAuth } from '@/hooks/useTodoistAuth';
+import { useTodoist, postTodoistComment } from '@/hooks/useTodoist';
 
 function App() {
   const timerStore = useMemo(() => createTimerStore(), []);
@@ -18,6 +19,7 @@ function App() {
   const { themeId, setTheme, mode, setMode } = useTheme();
   const { permission, requestPermission, sendNotification } = useNotifications();
   const { apiKey: todoistApiKey, setApiKey, clearApiKey, validateKey, isValidating } = useTodoistAuth();
+  const { tasks: todoistTasks, isLoading: isTodoistLoading, refetch: refetchTodoist } = useTodoist(todoistApiKey);
   const prevStatus = useRef(session?.status);
 
   const handleTodoistConnect = useCallback(async (key: string) => {
@@ -37,7 +39,7 @@ function App() {
     return () => clearInterval(interval);
   }, [timerStore]);
 
-  // Track completed pomodoros and send notifications
+  // Track completed pomodoros, send notifications, and post Todoist comment
   useEffect(() => {
     if (prevStatus.current !== 'completed' && session?.status === 'completed') {
       setCompletedToday((prev) => prev + 1);
@@ -45,9 +47,16 @@ function App() {
       // Send notification when session completes
       const message = NOTIFICATION_MESSAGES.workComplete;
       sendNotification(message.title, { body: message.body });
+
+      // Post comment to Todoist if task came from Todoist
+      if (todoistApiKey && session.todoistTaskId) {
+        const durationMins = session.durationMins || config.workMins;
+        const comment = `🍅 ${durationMins}min focus session completed via Pinepomo`;
+        postTodoistComment(todoistApiKey, session.todoistTaskId, comment);
+      }
     }
     prevStatus.current = session?.status;
-  }, [session?.status, sendNotification]);
+  }, [session?.status, session?.todoistTaskId, session?.durationMins, todoistApiKey, config.workMins, sendNotification]);
 
   // Calculate total seconds for progress
   const totalSeconds = session?.durationMins ? session.durationMins * 60 : config.workMins * 60;
@@ -76,7 +85,12 @@ function App() {
           taskName={session?.taskName}
         />
 
-        <TimerControls store={timerStore} />
+        <TimerControls
+          store={timerStore}
+          todoistTasks={todoistTasks}
+          isTodoistLoading={isTodoistLoading}
+          onTodoistRefresh={refetchTodoist}
+        />
 
         <DailyProgress completed={completedToday} goal={config.dailyGoal} />
       </main>
