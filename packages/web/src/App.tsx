@@ -1,25 +1,29 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Settings } from 'lucide-react';
+import { Settings, Cloud, CloudOff } from 'lucide-react';
 import { createTimerStore } from '@pinepomo/core';
 import { PillTimer } from '@/components/timer/PillTimer';
 import { TimerControls } from '@/components/timer/TimerControls';
 import { DailyProgress } from '@/components/progress/DailyProgress';
 import { SettingsModal } from '@/components/settings/SettingsModal';
+import { AuthModal } from '@/components/auth/AuthModal';
 import { Button } from '@/components/ui/Button';
 import { useTheme } from '@/hooks/useTheme';
 import { useNotifications, NOTIFICATION_MESSAGES } from '@/hooks/useNotifications';
 import { useTodoistAuth } from '@/hooks/useTodoistAuth';
 import { useTodoist, postTodoistComment } from '@/hooks/useTodoist';
+import { useAuth } from '@/hooks/useAuth';
 
 function App() {
   const timerStore = useMemo(() => createTimerStore(), []);
   const { session, remainingSeconds, config, setConfig } = timerStore();
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [authOpen, setAuthOpen] = useState(false);
   const [completedToday, setCompletedToday] = useState(0);
   const { themeId, setTheme, mode, setMode } = useTheme();
   const { permission, requestPermission, sendNotification } = useNotifications();
   const { apiKey: todoistApiKey, setApiKey, clearApiKey, validateKey, isValidating } = useTodoistAuth();
   const { tasks: todoistTasks, isLoading: isTodoistLoading, refetch: refetchTodoist } = useTodoist(todoistApiKey);
+  const { user, isAuthenticated, signUp, signIn, signInWithGoogle, signOut } = useAuth();
   const prevStatus = useRef(session?.status);
 
   const handleTodoistConnect = useCallback(async (key: string) => {
@@ -66,14 +70,36 @@ function App() {
       {/* Header */}
       <header className="flex items-center justify-between px-6 py-4">
         <img src="/logo.svg" alt="Pinepomo" className="h-8" />
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setSettingsOpen(true)}
-          aria-label="Open settings"
-        >
-          <Settings className="w-5 h-5" />
-        </Button>
+        <div className="flex items-center gap-2">
+          {/* Sync status indicator */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setAuthOpen(true)}
+            aria-label={isAuthenticated ? 'Account settings' : 'Sign in to sync'}
+            className="flex items-center gap-1.5"
+          >
+            {isAuthenticated ? (
+              <>
+                <Cloud className="w-4 h-4 text-primary-400" />
+                <span className="text-xs text-secondary hidden sm:inline">Synced</span>
+              </>
+            ) : (
+              <>
+                <CloudOff className="w-4 h-4 text-muted" />
+                <span className="text-xs text-muted hidden sm:inline">Local</span>
+              </>
+            )}
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setSettingsOpen(true)}
+            aria-label="Open settings"
+          >
+            <Settings className="w-5 h-5" />
+          </Button>
+        </div>
       </header>
 
       {/* Main content */}
@@ -111,6 +137,17 @@ function App() {
         onTodoistConnect={handleTodoistConnect}
         onTodoistDisconnect={clearApiKey}
         isTodoistValidating={isValidating}
+      />
+
+      {/* Auth Modal */}
+      <AuthModal
+        isOpen={authOpen}
+        onClose={() => setAuthOpen(false)}
+        user={user}
+        onSignUp={signUp}
+        onSignIn={signIn}
+        onSignInWithGoogle={signInWithGoogle}
+        onSignOut={signOut}
       />
     </div>
   );

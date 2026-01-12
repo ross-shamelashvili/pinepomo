@@ -268,7 +268,7 @@ export function SettingsModal({
             {todoistApiKey ? (
               <div className="flex items-center justify-between">
                 <span className="text-xs text-muted">
-                  Pull today's tasks from Todoist
+                  Pull today&apos;s tasks from Todoist
                 </span>
                 <button
                   onClick={onTodoistDisconnect}
