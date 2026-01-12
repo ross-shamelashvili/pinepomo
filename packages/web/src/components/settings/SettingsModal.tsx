@@ -1,5 +1,5 @@
-import { useEffect, useRef } from 'react';
-import { X, Check, Sun, Moon, Bell, BellOff } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { X, Check, Sun, Moon, Bell, BellOff, Eye, EyeOff, Link, Unlink, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { cn } from '@/lib/cn';
 import { themeList, type ThemeId } from '@/lib/themes';
@@ -18,6 +18,10 @@ interface SettingsModalProps {
   onModeChange: (mode: Mode) => void;
   notificationPermission: NotificationPermission;
   onRequestNotifications: () => Promise<NotificationPermission>;
+  todoistApiKey: string | null;
+  onTodoistConnect: (key: string) => Promise<boolean>;
+  onTodoistDisconnect: () => void;
+  isTodoistValidating: boolean;
 }
 
 interface SettingRowProps {
@@ -66,8 +70,25 @@ export function SettingsModal({
   onModeChange,
   notificationPermission,
   onRequestNotifications,
+  todoistApiKey,
+  onTodoistConnect,
+  onTodoistDisconnect,
+  isTodoistValidating,
 }: SettingsModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
+  const [todoistKeyInput, setTodoistKeyInput] = useState('');
+  const [showTodoistKey, setShowTodoistKey] = useState(false);
+  const [todoistError, setTodoistError] = useState<string | null>(null);
+
+  const handleTodoistConnect = async () => {
+    setTodoistError(null);
+    const isValid = await onTodoistConnect(todoistKeyInput);
+    if (isValid) {
+      setTodoistKeyInput('');
+    } else {
+      setTodoistError('Invalid API key. Please check and try again.');
+    }
+  };
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -112,8 +133,8 @@ export function SettingsModal({
         ref={modalRef}
         tabIndex={-1}
         className={cn(
-          'relative w-full max-w-md',
-          'p-6',
+          'relative w-full max-w-md max-h-[85vh]',
+          'p-6 overflow-y-auto',
           'rounded-2xl',
           'bg-card border border-muted',
           'animate-scale-in',
@@ -213,6 +234,117 @@ export function SettingsModal({
               <Check className="w-5 h-5 text-primary-400" />
             )}
           </button>
+        </div>
+
+        {/* Integrations */}
+        <div className="mb-6">
+          <h3 className="text-sm font-medium text-secondary uppercase tracking-wider mb-3">
+            Integrations
+          </h3>
+
+          {/* Todoist */}
+          <div className={cn(
+            'rounded-lg border p-4',
+            'transition-all duration-200',
+            todoistApiKey
+              ? 'border-primary-500 bg-primary-500/10'
+              : 'border-muted'
+          )}>
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M21 3.998H3c-.552 0-1 .448-1 1v14c0 .552.448 1 1 1h18c.552 0 1-.448 1-1v-14c0-.552-.448-1-1-1zm-1 14H4v-12h16v12zm-2-9h-4v2h4v-2zm-6 0H6v2h6v-2zm6 4h-4v2h4v-2zm-6 0H6v2h6v-2z" fill="#E44332"/>
+                </svg>
+                <span className="text-sm font-medium text-main">Todoist</span>
+              </div>
+              {todoistApiKey && (
+                <div className="flex items-center gap-1 text-xs text-primary-400">
+                  <Link className="w-3 h-3" />
+                  Connected
+                </div>
+              )}
+            </div>
+
+            {todoistApiKey ? (
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-muted">
+                  Pull today's tasks from Todoist
+                </span>
+                <button
+                  onClick={onTodoistDisconnect}
+                  className={cn(
+                    'flex items-center gap-1.5 px-3 py-1.5',
+                    'text-xs rounded-lg',
+                    'border border-red-500/30 text-red-400',
+                    'hover:bg-red-500/10 transition-colors'
+                  )}
+                >
+                  <Unlink className="w-3 h-3" />
+                  Disconnect
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <input
+                      type={showTodoistKey ? 'text' : 'password'}
+                      value={todoistKeyInput}
+                      onChange={(e) => setTodoistKeyInput(e.target.value)}
+                      placeholder="Enter API key"
+                      className={cn(
+                        'w-full px-3 py-2 pr-10',
+                        'text-sm rounded-lg',
+                        'bg-elevated border border-muted',
+                        'text-main placeholder:text-muted',
+                        'focus:outline-none focus:border-primary-600/50',
+                        todoistError && 'border-red-500/50'
+                      )}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowTodoistKey(!showTodoistKey)}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-muted hover:text-secondary"
+                    >
+                      {showTodoistKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                  <button
+                    onClick={handleTodoistConnect}
+                    disabled={!todoistKeyInput.trim() || isTodoistValidating}
+                    className={cn(
+                      'px-4 py-2 rounded-lg',
+                      'text-sm font-medium',
+                      'bg-primary-600 text-white',
+                      'hover:bg-primary-500 transition-colors',
+                      'disabled:opacity-50 disabled:cursor-not-allowed',
+                      'flex items-center gap-2'
+                    )}
+                  >
+                    {isTodoistValidating ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      'Connect'
+                    )}
+                  </button>
+                </div>
+                {todoistError && (
+                  <p className="text-xs text-red-400">{todoistError}</p>
+                )}
+                <p className="text-xs text-muted">
+                  Get your API key from{' '}
+                  <a
+                    href="https://todoist.com/app/settings/integrations/developer"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary-400 hover:underline"
+                  >
+                    Todoist Settings → Integrations
+                  </a>
+                </p>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Theme Settings */}
