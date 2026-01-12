@@ -169,7 +169,7 @@ export const themes: Record<ThemeId, Theme> = {
   },
   tokyoNight: {
     id: 'tokyoNight',
-    name: 'Tokyo Night',
+    name: 'Tokyo',
     colors: {
       primary: {
         50: '#e6f0ff',
