@@ -17,7 +17,7 @@ interface UseSyncReturn {
   sessions: TimerSession[];
   activeSession: TimerSession | null;
   isLoadingSessions: boolean;
-  createSession: (session: Omit<TimerSessionInsert, 'user_id'>) => Promise<TimerSession | null>;
+  createSession: (session: Omit<TimerSessionInsert, 'user_id' | 'device_id'>) => Promise<TimerSession | null>;
   updateSession: (id: string, updates: Partial<TimerSession>) => Promise<void>;
 
   // Sync status
@@ -126,7 +126,7 @@ export function useSync(userId: string | null): UseSyncReturn {
 
   // Create a new session
   const createSession = useCallback(
-    async (session: Omit<TimerSessionInsert, 'user_id'>): Promise<TimerSession | null> => {
+    async (session: Omit<TimerSessionInsert, 'user_id' | 'device_id'>): Promise<TimerSession | null> => {
       if (!userId) return null;
 
       setIsSyncing(true);

@@ -8,10 +8,12 @@ import { SettingsModal } from '@/components/settings/SettingsModal';
 import { AuthModal } from '@/components/auth/AuthModal';
 import { Button } from '@/components/ui/Button';
 import { useTheme } from '@/hooks/useTheme';
+import type { ThemeId } from '@/lib/themes';
 import { useNotifications, NOTIFICATION_MESSAGES } from '@/hooks/useNotifications';
 import { useTodoistAuth } from '@/hooks/useTodoistAuth';
 import { useTodoist, postTodoistComment } from '@/hooks/useTodoist';
 import { useAuth } from '@/hooks/useAuth';
+import { useSync } from '@/hooks/useSync';
 
 function App() {
   const timerStore = useMemo(() => createTimerStore(), []);
@@ -23,8 +25,17 @@ function App() {
   const { permission, requestPermission, sendNotification } = useNotifications();
   const { apiKey: todoistApiKey, setApiKey, clearApiKey, validateKey, isValidating } = useTodoistAuth();
   const { tasks: todoistTasks, isLoading: isTodoistLoading, refetch: refetchTodoist } = useTodoist(todoistApiKey);
-  const { user, isAuthenticated, signUp, signIn, signInWithGoogle, signOut } = useAuth();
+  const { user, isAuthenticated, sendMagicLink, signOut } = useAuth();
+  const {
+    settings: syncedSettings,
+    updateSettings: updateSyncedSettings,
+    createSession: createSyncedSession,
+    updateSession: updateSyncedSession,
+    sessions: syncedSessions,
+  } = useSync(user?.id ?? null);
   const prevStatus = useRef(session?.status);
+  const currentSessionId = useRef<string | null>(null);
+  const hasAppliedSyncedSettings = useRef(false);
 
   const handleTodoistConnect = useCallback(async (key: string) => {
     const isValid = await validateKey(key);
@@ -61,6 +72,128 @@ function App() {
     }
     prevStatus.current = session?.status;
   }, [session?.status, session?.todoistTaskId, session?.durationMins, todoistApiKey, config.workMins, sendNotification]);
+
+  // Apply synced settings to local config when loaded (only once on initial load)
+  useEffect(() => {
+    if (syncedSettings && !hasAppliedSyncedSettings.current) {
+      hasAppliedSyncedSettings.current = true;
+      setConfig({
+        workMins: syncedSettings.work_mins,
+        breakMins: syncedSettings.break_mins,
+        longBreakMins: syncedSettings.long_break_mins,
+        dailyGoal: syncedSettings.daily_goal,
+      });
+      // Also sync theme
+      if (syncedSettings.theme_id) {
+        setTheme(syncedSettings.theme_id as ThemeId);
+      }
+      if (syncedSettings.mode) {
+        setMode(syncedSettings.mode as 'light' | 'dark');
+      }
+      // Sync Todoist API key
+      if (syncedSettings.todoist_api_key) {
+        setApiKey(syncedSettings.todoist_api_key);
+      }
+    }
+    // Reset flag when user logs out
+    if (!syncedSettings) {
+      hasAppliedSyncedSettings.current = false;
+    }
+  }, [syncedSettings, setConfig, setTheme, setMode, setApiKey]);
+
+  // Sync config changes to Supabase
+  const handleConfigChange = useCallback((updates: Partial<typeof config>) => {
+    setConfig(updates);
+    if (isAuthenticated) {
+      const syncUpdates: Record<string, number | undefined> = {};
+      if (updates.workMins !== undefined) syncUpdates.work_mins = updates.workMins;
+      if (updates.breakMins !== undefined) syncUpdates.break_mins = updates.breakMins;
+      if (updates.longBreakMins !== undefined) syncUpdates.long_break_mins = updates.longBreakMins;
+      if (updates.dailyGoal !== undefined) syncUpdates.daily_goal = updates.dailyGoal;
+      if (Object.keys(syncUpdates).length > 0) {
+        updateSyncedSettings(syncUpdates);
+      }
+    }
+  }, [setConfig, isAuthenticated, updateSyncedSettings]);
+
+  // Sync theme changes to Supabase
+  const handleThemeChange = useCallback((newThemeId: ThemeId) => {
+    setTheme(newThemeId);
+    if (isAuthenticated) {
+      updateSyncedSettings({ theme_id: newThemeId });
+    }
+  }, [setTheme, isAuthenticated, updateSyncedSettings]);
+
+  // Sync mode changes to Supabase
+  const handleModeChange = useCallback((newMode: 'light' | 'dark') => {
+    setMode(newMode);
+    if (isAuthenticated) {
+      updateSyncedSettings({ mode: newMode });
+    }
+  }, [setMode, isAuthenticated, updateSyncedSettings]);
+
+  // Sync Todoist API key to Supabase
+  const handleTodoistConnectWithSync = useCallback(async (key: string) => {
+    const isValid = await handleTodoistConnect(key);
+    if (isValid && isAuthenticated) {
+      updateSyncedSettings({ todoist_api_key: key });
+    }
+    return isValid;
+  }, [handleTodoistConnect, isAuthenticated, updateSyncedSettings]);
+
+  const handleTodoistDisconnectWithSync = useCallback(() => {
+    clearApiKey();
+    if (isAuthenticated) {
+      updateSyncedSettings({ todoist_api_key: null });
+    }
+  }, [clearApiKey, isAuthenticated, updateSyncedSettings]);
+
+  // Create session in Supabase when timer starts
+  useEffect(() => {
+    if (session?.status === 'running' && !currentSessionId.current && isAuthenticated) {
+      createSyncedSession({
+        started_at: new Date().toISOString(),
+        duration_mins: session.durationMins || config.workMins,
+        status: 'running',
+        task_name: session.taskName || null,
+        todoist_task_id: session.todoistTaskId || null,
+      }).then((created) => {
+        if (created) {
+          currentSessionId.current = created.id;
+        }
+      });
+    }
+  }, [session?.status, session?.durationMins, session?.taskName, session?.todoistTaskId, config.workMins, isAuthenticated, createSyncedSession]);
+
+  // Update session status in Supabase
+  useEffect(() => {
+    if (!currentSessionId.current || !isAuthenticated) return;
+
+    if (session?.status === 'paused') {
+      updateSyncedSession(currentSessionId.current, { status: 'paused' });
+    } else if (session?.status === 'completed') {
+      updateSyncedSession(currentSessionId.current, {
+        status: 'completed',
+        ended_at: new Date().toISOString()
+      });
+      currentSessionId.current = null;
+    } else if (session?.status === 'idle' && prevStatus.current !== 'completed') {
+      // Cancelled
+      updateSyncedSession(currentSessionId.current, {
+        status: 'cancelled',
+        ended_at: new Date().toISOString()
+      });
+      currentSessionId.current = null;
+    }
+  }, [session?.status, isAuthenticated, updateSyncedSession]);
+
+  // Count completed sessions from synced data
+  useEffect(() => {
+    if (syncedSessions.length > 0) {
+      const completed = syncedSessions.filter(s => s.status === 'completed').length;
+      setCompletedToday(completed);
+    }
+  }, [syncedSessions]);
 
   // Calculate total seconds for progress
   const totalSeconds = session?.durationMins ? session.durationMins * 60 : config.workMins * 60;
@@ -126,16 +259,16 @@ function App() {
         isOpen={settingsOpen}
         onClose={() => setSettingsOpen(false)}
         config={config}
-        onConfigChange={setConfig}
+        onConfigChange={handleConfigChange}
         themeId={themeId}
-        onThemeChange={setTheme}
+        onThemeChange={handleThemeChange}
         mode={mode}
-        onModeChange={setMode}
+        onModeChange={handleModeChange}
         notificationPermission={permission}
         onRequestNotifications={requestPermission}
         todoistApiKey={todoistApiKey}
-        onTodoistConnect={handleTodoistConnect}
-        onTodoistDisconnect={clearApiKey}
+        onTodoistConnect={handleTodoistConnectWithSync}
+        onTodoistDisconnect={handleTodoistDisconnectWithSync}
         isTodoistValidating={isValidating}
       />
 
@@ -144,9 +277,7 @@ function App() {
         isOpen={authOpen}
         onClose={() => setAuthOpen(false)}
         user={user}
-        onSignUp={signUp}
-        onSignIn={signIn}
-        onSignInWithGoogle={signInWithGoogle}
+        onSendMagicLink={sendMagicLink}
         onSignOut={signOut}
       />
     </div>
