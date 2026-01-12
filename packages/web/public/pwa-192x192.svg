@@ -1,0 +1,19 @@
+<svg width="192" height="192" viewBox="0 0 192 192" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="192" height="192" rx="32" fill="#0a0a0a"/>
+
+  <!-- Tomato/Pomodoro -->
+  <circle cx="96" cy="60" r="30" fill="#dc2626" fill-opacity="0.3" stroke="#dc2626" stroke-width="6"/>
+
+  <!-- Tomato stem/leaf -->
+  <path d="M96 30L84 42L96 36L108 42L96 30z" fill="#059669" stroke="#059669" stroke-width="2" stroke-linejoin="round"/>
+
+  <!-- Pill timer shape -->
+  <rect x="36" y="108" width="120" height="48" rx="24" fill="none" stroke="#059669" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Timer progress indicator -->
+  <path d="M60 132L90 132" stroke="#059669" stroke-width="6" stroke-linecap="round"/>
+
+  <!-- Tech connection -->
+  <path d="M96 90L96 108" stroke="#059669" stroke-width="6" stroke-dasharray="8,8" stroke-linecap="round"/>
+</svg>

@@ -1,9 +1,10 @@
 import { useEffect, useRef } from 'react';
-import { X, Check, Sun, Moon } from 'lucide-react';
+import { X, Check, Sun, Moon, Bell, BellOff } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { cn } from '@/lib/cn';
 import { themeList, type ThemeId } from '@/lib/themes';
 import type { Mode } from '@/hooks/useTheme';
+import type { NotificationPermission } from '@/hooks/useNotifications';
 import type { TimerConfig } from '@pinepomo/core';
 
 interface SettingsModalProps {
@@ -15,6 +16,8 @@ interface SettingsModalProps {
   onThemeChange: (id: ThemeId) => void;
   mode: Mode;
   onModeChange: (mode: Mode) => void;
+  notificationPermission: NotificationPermission;
+  onRequestNotifications: () => Promise<NotificationPermission>;
 }
 
 interface SettingRowProps {
@@ -61,6 +64,8 @@ export function SettingsModal({
   onThemeChange,
   mode,
   onModeChange,
+  notificationPermission,
+  onRequestNotifications,
 }: SettingsModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
 
@@ -160,6 +165,54 @@ export function SettingsModal({
               <span className="text-sm">Dark</span>
             </button>
           </div>
+        </div>
+
+        {/* Notifications */}
+        <div className="mb-6">
+          <h3 className="text-sm font-medium text-secondary uppercase tracking-wider mb-3">
+            Notifications
+          </h3>
+          <button
+            onClick={onRequestNotifications}
+            disabled={notificationPermission === 'granted'}
+            className={cn(
+              'w-full flex items-center justify-between py-3 px-4',
+              'rounded-lg border',
+              'transition-all duration-200',
+              notificationPermission === 'granted'
+                ? 'border-primary-500 bg-primary-500/10'
+                : notificationPermission === 'denied'
+                  ? 'border-red-500/50 bg-red-500/10'
+                  : 'border-muted hover:bg-elevated'
+            )}
+          >
+            <div className="flex items-center gap-3">
+              {notificationPermission === 'granted' ? (
+                <Bell className="w-5 h-5 text-primary-400" />
+              ) : (
+                <BellOff className="w-5 h-5 text-secondary" />
+              )}
+              <div className="text-left">
+                <span className="text-sm text-main block">
+                  {notificationPermission === 'granted'
+                    ? 'Notifications enabled'
+                    : notificationPermission === 'denied'
+                      ? 'Notifications blocked'
+                      : 'Enable notifications'}
+                </span>
+                <span className="text-xs text-muted">
+                  {notificationPermission === 'granted'
+                    ? 'You\'ll be notified when sessions end'
+                    : notificationPermission === 'denied'
+                      ? 'Allow in browser settings'
+                      : 'Get notified when sessions complete'}
+                </span>
+              </div>
+            </div>
+            {notificationPermission === 'granted' && (
+              <Check className="w-5 h-5 text-primary-400" />
+            )}
+          </button>
         </div>
 
         {/* Theme Settings */}

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Settings } from 'lucide-react';
 import { createTimerStore } from '@pinepomo/core';
 import { PillTimer } from '@/components/timer/PillTimer';
@@ -7,6 +7,7 @@ import { DailyProgress } from '@/components/progress/DailyProgress';
 import { SettingsModal } from '@/components/settings/SettingsModal';
 import { Button } from '@/components/ui/Button';
 import { useTheme } from '@/hooks/useTheme';
+import { useNotifications, NOTIFICATION_MESSAGES } from '@/hooks/useNotifications';
 
 function App() {
   const timerStore = useMemo(() => createTimerStore(), []);
@@ -14,6 +15,8 @@ function App() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [completedToday, setCompletedToday] = useState(0);
   const { themeId, setTheme, mode, setMode } = useTheme();
+  const { permission, requestPermission, sendNotification } = useNotifications();
+  const prevStatus = useRef(session?.status);
 
   // Set up tick interval
   useEffect(() => {
@@ -24,12 +27,17 @@ function App() {
     return () => clearInterval(interval);
   }, [timerStore]);
 
-  // Track completed pomodoros
+  // Track completed pomodoros and send notifications
   useEffect(() => {
-    if (session?.status === 'completed') {
+    if (prevStatus.current !== 'completed' && session?.status === 'completed') {
       setCompletedToday((prev) => prev + 1);
+
+      // Send notification when session completes
+      const message = NOTIFICATION_MESSAGES.workComplete;
+      sendNotification(message.title, { body: message.body });
     }
-  }, [session?.status]);
+    prevStatus.current = session?.status;
+  }, [session?.status, sendNotification]);
 
   // Calculate total seconds for progress
   const totalSeconds = session?.durationMins ? session.durationMins * 60 : config.workMins * 60;
@@ -73,6 +81,8 @@ function App() {
         onThemeChange={setTheme}
         mode={mode}
         onModeChange={setMode}
+        notificationPermission={permission}
+        onRequestNotifications={requestPermission}
       />
     </div>
   );
