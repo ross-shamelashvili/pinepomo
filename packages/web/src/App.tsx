@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Settings, Cloud, CloudOff } from 'lucide-react';
+import { Settings, Cloud, CloudOff, BarChart2 } from 'lucide-react';
 import { createTimerStore } from '@pinepomo/core';
 import { PillTimer } from '@/components/timer/PillTimer';
 import { TimerControls } from '@/components/timer/TimerControls';
 import { DailyProgress } from '@/components/progress/DailyProgress';
 import { SettingsModal } from '@/components/settings/SettingsModal';
 import { AuthModal } from '@/components/auth/AuthModal';
+import { StatsModal } from '@/components/stats/StatsModal';
 import { Button } from '@/components/ui/Button';
 import { useTheme } from '@/hooks/useTheme';
 import type { ThemeId } from '@/lib/themes';
@@ -14,12 +15,14 @@ import { useTodoistAuth } from '@/hooks/useTodoistAuth';
 import { useTodoist, postTodoistComment } from '@/hooks/useTodoist';
 import { useAuth } from '@/hooks/useAuth';
 import { useSync } from '@/hooks/useSync';
+import { useStats } from '@/hooks/useStats';
 
 function App() {
   const timerStore = useMemo(() => createTimerStore(), []);
   const { session, remainingSeconds, config, setConfig } = timerStore();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
+  const [statsOpen, setStatsOpen] = useState(false);
   const [completedToday, setCompletedToday] = useState(0);
   const { themeId, setTheme, mode, setMode } = useTheme();
   const { permission, requestPermission, sendNotification } = useNotifications();
@@ -33,6 +36,7 @@ function App() {
     updateSession: updateSyncedSession,
     sessions: syncedSessions,
   } = useSync(user?.id ?? null);
+  const { stats, isLoading: isLoadingStats } = useStats(user?.id ?? null);
   const prevStatus = useRef(session?.status);
   const currentSessionId = useRef<string | null>(null);
   const hasAppliedSyncedSettings = useRef(false);
@@ -224,6 +228,16 @@ function App() {
               </>
             )}
           </Button>
+          {isAuthenticated && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setStatsOpen(true)}
+              aria-label="View statistics"
+            >
+              <BarChart2 className="w-5 h-5" />
+            </Button>
+          )}
           <Button
             variant="ghost"
             size="sm"
@@ -279,6 +293,14 @@ function App() {
         user={user}
         onSendMagicLink={sendMagicLink}
         onSignOut={signOut}
+      />
+
+      {/* Stats Modal */}
+      <StatsModal
+        isOpen={statsOpen}
+        onClose={() => setStatsOpen(false)}
+        stats={stats}
+        isLoading={isLoadingStats}
       />
     </div>
   );
