@@ -18,7 +18,8 @@ export function useAuth(): UseAuthReturn {
 
   useEffect(() => {
     // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      console.log('Initial session:', { session: session?.user?.email, error });
       setSession(session);
       setUser(session?.user ?? null);
       setIsLoading(false);
@@ -27,7 +28,8 @@ export function useAuth(): UseAuthReturn {
     // Listen for auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('Auth state changed:', { event, user: session?.user?.email });
       setSession(session);
       setUser(session?.user ?? null);
       setIsLoading(false);
@@ -37,18 +39,31 @@ export function useAuth(): UseAuthReturn {
   }, []);
 
   const sendMagicLink = useCallback(async (email: string) => {
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: {
-        emailRedirectTo: window.location.origin,
-      },
-    });
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          emailRedirectTo: window.location.origin,
+          shouldCreateUser: true,
+        },
+      });
 
-    if (error) {
-      return { error: error.message };
+      if (error) {
+        // Handle rate limit error
+        if (error.status === 429 || error.message?.toLowerCase().includes('rate')) {
+          return { error: 'Too many attempts. Please wait a few minutes and try again.' };
+        }
+        return { error: error.message };
+      }
+
+      return { error: null };
+    } catch (err) {
+      // Catch network-level 429 errors
+      if (err instanceof Error && err.message?.includes('429')) {
+        return { error: 'Too many attempts. Please wait a few minutes and try again.' };
+      }
+      return { error: 'Failed to send magic link. Please try again.' };
     }
-
-    return { error: null };
   }, []);
 
   const signOut = useCallback(async () => {

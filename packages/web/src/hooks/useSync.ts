@@ -210,7 +210,14 @@ export function useSync(userId: string | null): UseSyncReturn {
         },
         (payload) => {
           if (payload.eventType === 'INSERT') {
-            setSessions((prev) => [payload.new as TimerSession, ...prev]);
+            const newSession = payload.new as TimerSession;
+            setSessions((prev) => {
+              // Don't add if already exists (added locally before realtime event)
+              if (prev.some((s) => s.id === newSession.id)) {
+                return prev;
+              }
+              return [newSession, ...prev];
+            });
           } else if (payload.eventType === 'UPDATE') {
             setSessions((prev) =>
               prev.map((s) =>
