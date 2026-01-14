@@ -9,14 +9,14 @@ const config = getDefaultConfig(projectRoot);
 // Watch all files in the monorepo
 config.watchFolders = [monorepoRoot];
 
-// Let Metro know where to resolve packages from
+// Let Metro know where to resolve packages from (including pnpm's .pnpm folder)
 config.resolver.nodeModulesPaths = [
   path.resolve(projectRoot, 'node_modules'),
   path.resolve(monorepoRoot, 'node_modules'),
 ];
 
-// Force Metro to resolve packages correctly in monorepo
-config.resolver.disableHierarchicalLookup = true;
+// Enable symlinks for pnpm
+config.resolver.unstable_enableSymlinks = true;
 
 // Handle ESM-only packages (like @pinepomo/core)
 config.resolver.unstable_enablePackageExports = true;
