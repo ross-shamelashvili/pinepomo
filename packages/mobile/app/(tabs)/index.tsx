@@ -6,64 +6,63 @@ import {
   TextInput,
   useColorScheme,
 } from 'react-native';
-import { useMemo, useEffect, useCallback, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
-import { createTimerStore } from '@pinepomo/core';
-import { CircularProgress } from '../../components/CircularProgress';
-
-const PROGRESS_SIZE = 280;
-const PROGRESS_STROKE = 12;
+import { useTimerStore, timerStore } from '../../store/timerStore';
+import { PillTimer } from '../../components/PillTimer';
+import { DailyProgress } from '../../components/DailyProgress';
 
 export default function TimerScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const colors = isDark ? darkColors : lightColors;
 
-  const timerStore = useMemo(() => createTimerStore(), []);
-  const { session, remainingSeconds, config } = timerStore();
+  // Use the global store with proper reactivity
+  const { session, remainingSeconds, config, start, pause, resume, cancel, reset, tick } = useTimerStore();
   const [taskName, setTaskName] = useState('');
+  const [completedSessions, setCompletedSessions] = useState(0);
 
   // Tick interval
   useEffect(() => {
     const interval = setInterval(() => {
-      timerStore.getState().tick();
+      tick();
     }, 1000);
     return () => clearInterval(interval);
-  }, [timerStore]);
-
-  const formatTime = useCallback((seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  }, []);
+  }, [tick]);
 
   const handleStart = async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    timerStore.getState().start(taskName ? { taskName } : undefined);
+    start(taskName ? { taskName } : undefined);
   };
 
   const handlePause = async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    timerStore.getState().pause();
+    pause();
   };
 
   const handleResume = async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    timerStore.getState().resume();
+    resume();
   };
 
   const handleCancel = async () => {
     await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
-    timerStore.getState().cancel();
-    timerStore.getState().reset();
+    cancel();
+    reset();
+    setTaskName('');
+  };
+
+  const handleComplete = async () => {
+    await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    setCompletedSessions((prev) => prev + 1);
+    reset();
     setTaskName('');
   };
 
   const status = session?.status ?? 'idle';
   const totalSeconds = config.workMins * 60;
   const displayTime = status === 'idle' ? totalSeconds : remainingSeconds;
-  const progress = status === 'idle' ? 1 : remainingSeconds / totalSeconds;
 
   // Haptic feedback when timer completes
   useEffect(() => {
@@ -74,200 +73,216 @@ export default function TimerScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <Text style={[styles.title, { color: colors.primary }]}>Pinepomo</Text>
+      {/* Header */}
+      <View style={styles.header}>
+        <Text style={[styles.logo, { color: colors.primary }]}>Pinepomo</Text>
+      </View>
 
-      {/* Task name input - only show when idle */}
-      {status === 'idle' && (
-        <TextInput
-          style={[
-            styles.taskInput,
-            {
-              backgroundColor: colors.inputBackground,
-              color: colors.text,
-              borderColor: colors.border,
-            },
-          ]}
-          placeholder="What are you working on?"
-          placeholderTextColor={colors.placeholder}
-          value={taskName}
-          onChangeText={setTaskName}
-          returnKeyType="done"
-        />
-      )}
-
-      {/* Task name display - show when timer is active */}
-      {status !== 'idle' && session?.taskName && (
-        <Text style={[styles.taskDisplay, { color: colors.textSecondary }]}>
-          {session.taskName}
-        </Text>
-      )}
-
-      {/* Circular progress timer */}
-      <CircularProgress
-        progress={progress}
-        size={PROGRESS_SIZE}
-        strokeWidth={PROGRESS_STROKE}
-        progressColor={colors.primary}
-        trackColor={colors.track}
-      >
-        <Text style={[styles.timer, { color: colors.text }]}>
-          {formatTime(displayTime)}
-        </Text>
-        <Text style={[styles.status, { color: colors.textSecondary }]}>
-          {status.toUpperCase()}
-        </Text>
-      </CircularProgress>
-
-      {/* Controls */}
-      <View style={styles.controls}>
+      {/* Main content */}
+      <View style={styles.main}>
+        {/* Task name input - only show when idle */}
         {status === 'idle' && (
-          <Pressable
-            style={({ pressed }) => [
-              styles.button,
-              { backgroundColor: colors.primary },
-              pressed && styles.buttonPressed,
+          <TextInput
+            style={[
+              styles.taskInput,
+              {
+                backgroundColor: colors.inputBackground,
+                color: colors.text,
+                borderColor: colors.border,
+              },
             ]}
-            onPress={handleStart}
-          >
-            <Text style={styles.buttonText}>Start</Text>
-          </Pressable>
+            placeholder="What are you working on?"
+            placeholderTextColor={colors.placeholder}
+            value={taskName}
+            onChangeText={setTaskName}
+            returnKeyType="done"
+          />
         )}
-        {status === 'running' && (
-          <Pressable
-            style={({ pressed }) => [
-              styles.button,
-              { backgroundColor: colors.primary },
-              pressed && styles.buttonPressed,
-            ]}
-            onPress={handlePause}
-          >
-            <Text style={styles.buttonText}>Pause</Text>
-          </Pressable>
-        )}
-        {status === 'paused' && (
-          <>
+
+        {/* Pill Timer */}
+        <PillTimer
+          remainingSeconds={displayTime}
+          totalSeconds={totalSeconds}
+          status={status}
+          taskName={status !== 'idle' ? session?.taskName : undefined}
+        />
+
+        {/* Daily Progress */}
+        <View style={styles.progressContainer}>
+          <DailyProgress completed={completedSessions} goal={config.dailyGoal} />
+        </View>
+
+        {/* Controls */}
+        <View style={styles.controls}>
+          {status === 'idle' && (
             <Pressable
               style={({ pressed }) => [
                 styles.button,
+                styles.buttonPrimary,
                 { backgroundColor: colors.primary },
                 pressed && styles.buttonPressed,
               ]}
-              onPress={handleResume}
+              onPress={handleStart}
             >
-              <Text style={styles.buttonText}>Resume</Text>
+              <Text style={styles.buttonText}>Start Focus</Text>
             </Pressable>
+          )}
+
+          {status === 'running' && (
             <Pressable
               style={({ pressed }) => [
                 styles.button,
-                styles.cancelButton,
+                styles.buttonSecondary,
+                { backgroundColor: colors.card, borderColor: colors.border },
                 pressed && styles.buttonPressed,
               ]}
-              onPress={handleCancel}
+              onPress={handlePause}
             >
-              <Text style={styles.buttonText}>Cancel</Text>
+              <Text style={[styles.buttonText, { color: colors.text }]}>Pause</Text>
             </Pressable>
-          </>
-        )}
-        {status === 'completed' && (
-          <Pressable
-            style={({ pressed }) => [
-              styles.button,
-              { backgroundColor: colors.primary },
-              pressed && styles.buttonPressed,
-            ]}
-            onPress={handleCancel}
-          >
-            <Text style={styles.buttonText}>Done</Text>
-          </Pressable>
-        )}
+          )}
+
+          {status === 'paused' && (
+            <View style={styles.buttonRow}>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.button,
+                  styles.buttonPrimary,
+                  { backgroundColor: colors.accent },
+                  pressed && styles.buttonPressed,
+                ]}
+                onPress={handleResume}
+              >
+                <Text style={styles.buttonText}>Resume</Text>
+              </Pressable>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.button,
+                  styles.buttonGhost,
+                  pressed && styles.buttonPressed,
+                ]}
+                onPress={handleCancel}
+              >
+                <Text style={[styles.buttonText, { color: colors.danger }]}>Cancel</Text>
+              </Pressable>
+            </View>
+          )}
+
+          {status === 'completed' && (
+            <Pressable
+              style={({ pressed }) => [
+                styles.button,
+                styles.buttonPrimary,
+                { backgroundColor: colors.success },
+                pressed && styles.buttonPressed,
+              ]}
+              onPress={handleComplete}
+            >
+              <Text style={styles.buttonText}>Complete</Text>
+            </Pressable>
+          )}
+        </View>
       </View>
     </SafeAreaView>
   );
 }
 
 const lightColors = {
-  background: '#ffffff',
-  primary: '#16a34a',
+  background: '#fafafa',
+  card: '#ffffff',
   text: '#1a1a1a',
   textSecondary: '#6b7280',
   placeholder: '#9ca3af',
-  inputBackground: '#f3f4f6',
+  inputBackground: '#ffffff',
   border: '#e5e7eb',
-  track: '#e5e7eb',
+  primary: '#16a34a',
+  accent: '#d97706',
+  success: '#059669',
+  danger: '#dc2626',
 };
 
 const darkColors = {
-  background: '#1a1a2e',
-  primary: '#22c55e',
+  background: '#0f0f1a',
+  card: '#1e1e2e',
   text: '#ffffff',
   textSecondary: '#9ca3af',
   placeholder: '#6b7280',
-  inputBackground: '#2d2d44',
-  border: '#3d3d5c',
-  track: '#2d2d44',
+  inputBackground: '#1e1e2e',
+  border: '#374151',
+  primary: '#22c55e',
+  accent: '#f59e0b',
+  success: '#10b981',
+  danger: '#ef4444',
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  header: {
+    paddingHorizontal: 24,
+    paddingTop: 12,
+    paddingBottom: 8,
+  },
+  logo: {
+    fontSize: 24,
+    fontWeight: '700',
+    letterSpacing: -0.5,
+  },
+  main: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 20,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    marginBottom: 20,
+    paddingHorizontal: 20,
+    gap: 32,
   },
   taskInput: {
     width: '100%',
-    maxWidth: 300,
-    height: 48,
-    borderRadius: 12,
+    maxWidth: 320,
+    height: 52,
+    borderRadius: 26,
     borderWidth: 1,
-    paddingHorizontal: 16,
+    paddingHorizontal: 24,
     fontSize: 16,
-    marginBottom: 32,
   },
-  taskDisplay: {
-    fontSize: 16,
-    marginBottom: 32,
-    textAlign: 'center',
-  },
-  timer: {
-    fontSize: 56,
-    fontWeight: '200',
-    fontVariant: ['tabular-nums'],
-  },
-  status: {
-    fontSize: 14,
-    marginTop: 4,
-    textTransform: 'uppercase',
-    letterSpacing: 2,
+  progressContainer: {
+    marginTop: 8,
   },
   controls: {
+    marginTop: 16,
+    width: '100%',
+    maxWidth: 320,
+  },
+  buttonRow: {
     flexDirection: 'row',
-    marginTop: 48,
-    gap: 16,
+    gap: 12,
+    justifyContent: 'center',
   },
   button: {
-    minWidth: 120,
-    height: 56,
+    height: 52,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 28,
+    borderRadius: 26,
     paddingHorizontal: 32,
   },
-  buttonPressed: {
-    opacity: 0.8,
-    transform: [{ scale: 0.98 }],
+  buttonPrimary: {
+    minWidth: 160,
   },
-  cancelButton: {
-    backgroundColor: '#dc2626',
+  buttonSecondary: {
+    minWidth: 160,
+    borderWidth: 1,
+  },
+  buttonGhost: {
+    backgroundColor: 'transparent',
+    minWidth: 100,
+  },
+  buttonPressed: {
+    opacity: 0.85,
+    transform: [{ scale: 0.98 }],
   },
   buttonText: {
     color: '#ffffff',
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '600',
   },
 });
