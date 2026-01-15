@@ -1,11 +1,28 @@
-import { View, Text, Pressable, StyleSheet } from 'react-native';
-import { useMemo, useEffect, useCallback } from 'react';
+import {
+  View,
+  Text,
+  Pressable,
+  StyleSheet,
+  TextInput,
+  useColorScheme,
+} from 'react-native';
+import { useMemo, useEffect, useCallback, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import * as Haptics from 'expo-haptics';
 import { createTimerStore } from '@pinepomo/core';
+import { CircularProgress } from '../../components/CircularProgress';
+
+const PROGRESS_SIZE = 280;
+const PROGRESS_STROKE = 12;
 
 export default function TimerScreen() {
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
+  const colors = isDark ? darkColors : lightColors;
+
   const timerStore = useMemo(() => createTimerStore(), []);
   const { session, remainingSeconds, config } = timerStore();
+  const [taskName, setTaskName] = useState('');
 
   // Tick interval
   useEffect(() => {
@@ -21,56 +38,146 @@ export default function TimerScreen() {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   }, []);
 
-  const handleStart = () => {
-    timerStore.getState().start();
+  const handleStart = async () => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    timerStore.getState().start(taskName ? { taskName } : undefined);
   };
 
-  const handlePause = () => {
+  const handlePause = async () => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     timerStore.getState().pause();
   };
 
-  const handleResume = () => {
+  const handleResume = async () => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     timerStore.getState().resume();
   };
 
-  const handleCancel = () => {
+  const handleCancel = async () => {
+    await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
     timerStore.getState().cancel();
     timerStore.getState().reset();
+    setTaskName('');
   };
 
   const status = session?.status ?? 'idle';
-  const displayTime = status === 'idle' ? config.workMins * 60 : remainingSeconds;
+  const totalSeconds = config.workMins * 60;
+  const displayTime = status === 'idle' ? totalSeconds : remainingSeconds;
+  const progress = status === 'idle' ? 1 : remainingSeconds / totalSeconds;
+
+  // Haptic feedback when timer completes
+  useEffect(() => {
+    if (status === 'completed') {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    }
+  }, [status]);
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Pinepomo</Text>
-      <Text style={styles.timer}>{formatTime(displayTime)}</Text>
-      <Text style={styles.status}>{status.toUpperCase()}</Text>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <Text style={[styles.title, { color: colors.primary }]}>Pinepomo</Text>
 
+      {/* Task name input - only show when idle */}
+      {status === 'idle' && (
+        <TextInput
+          style={[
+            styles.taskInput,
+            {
+              backgroundColor: colors.inputBackground,
+              color: colors.text,
+              borderColor: colors.border,
+            },
+          ]}
+          placeholder="What are you working on?"
+          placeholderTextColor={colors.placeholder}
+          value={taskName}
+          onChangeText={setTaskName}
+          returnKeyType="done"
+        />
+      )}
+
+      {/* Task name display - show when timer is active */}
+      {status !== 'idle' && session?.taskName && (
+        <Text style={[styles.taskDisplay, { color: colors.textSecondary }]}>
+          {session.taskName}
+        </Text>
+      )}
+
+      {/* Circular progress timer */}
+      <CircularProgress
+        progress={progress}
+        size={PROGRESS_SIZE}
+        strokeWidth={PROGRESS_STROKE}
+        progressColor={colors.primary}
+        trackColor={colors.track}
+      >
+        <Text style={[styles.timer, { color: colors.text }]}>
+          {formatTime(displayTime)}
+        </Text>
+        <Text style={[styles.status, { color: colors.textSecondary }]}>
+          {status.toUpperCase()}
+        </Text>
+      </CircularProgress>
+
+      {/* Controls */}
       <View style={styles.controls}>
         {status === 'idle' && (
-          <Pressable style={styles.button} onPress={handleStart}>
+          <Pressable
+            style={({ pressed }) => [
+              styles.button,
+              { backgroundColor: colors.primary },
+              pressed && styles.buttonPressed,
+            ]}
+            onPress={handleStart}
+          >
             <Text style={styles.buttonText}>Start</Text>
           </Pressable>
         )}
         {status === 'running' && (
-          <Pressable style={styles.button} onPress={handlePause}>
+          <Pressable
+            style={({ pressed }) => [
+              styles.button,
+              { backgroundColor: colors.primary },
+              pressed && styles.buttonPressed,
+            ]}
+            onPress={handlePause}
+          >
             <Text style={styles.buttonText}>Pause</Text>
           </Pressable>
         )}
         {status === 'paused' && (
           <>
-            <Pressable style={styles.button} onPress={handleResume}>
+            <Pressable
+              style={({ pressed }) => [
+                styles.button,
+                { backgroundColor: colors.primary },
+                pressed && styles.buttonPressed,
+              ]}
+              onPress={handleResume}
+            >
               <Text style={styles.buttonText}>Resume</Text>
             </Pressable>
-            <Pressable style={[styles.button, styles.cancelButton]} onPress={handleCancel}>
+            <Pressable
+              style={({ pressed }) => [
+                styles.button,
+                styles.cancelButton,
+                pressed && styles.buttonPressed,
+              ]}
+              onPress={handleCancel}
+            >
               <Text style={styles.buttonText}>Cancel</Text>
             </Pressable>
           </>
         )}
         {status === 'completed' && (
-          <Pressable style={styles.button} onPress={handleCancel}>
-            <Text style={styles.buttonText}>Reset</Text>
+          <Pressable
+            style={({ pressed }) => [
+              styles.button,
+              { backgroundColor: colors.primary },
+              pressed && styles.buttonPressed,
+            ]}
+            onPress={handleCancel}
+          >
+            <Text style={styles.buttonText}>Done</Text>
           </Pressable>
         )}
       </View>
@@ -78,43 +185,82 @@ export default function TimerScreen() {
   );
 }
 
+const lightColors = {
+  background: '#ffffff',
+  primary: '#16a34a',
+  text: '#1a1a1a',
+  textSecondary: '#6b7280',
+  placeholder: '#9ca3af',
+  inputBackground: '#f3f4f6',
+  border: '#e5e7eb',
+  track: '#e5e7eb',
+};
+
+const darkColors = {
+  background: '#1a1a2e',
+  primary: '#22c55e',
+  text: '#ffffff',
+  textSecondary: '#9ca3af',
+  placeholder: '#6b7280',
+  inputBackground: '#2d2d44',
+  border: '#3d3d5c',
+  track: '#2d2d44',
+};
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#1a1a2e',
     padding: 20,
   },
   title: {
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: 'bold',
-    color: '#16a34a',
-    marginBottom: 40,
+    marginBottom: 20,
+  },
+  taskInput: {
+    width: '100%',
+    maxWidth: 300,
+    height: 48,
+    borderRadius: 12,
+    borderWidth: 1,
+    paddingHorizontal: 16,
+    fontSize: 16,
+    marginBottom: 32,
+  },
+  taskDisplay: {
+    fontSize: 16,
+    marginBottom: 32,
+    textAlign: 'center',
   },
   timer: {
-    fontSize: 72,
+    fontSize: 56,
     fontWeight: '200',
-    color: '#ffffff',
     fontVariant: ['tabular-nums'],
   },
   status: {
-    fontSize: 16,
-    color: '#888888',
-    marginTop: 10,
+    fontSize: 14,
+    marginTop: 4,
     textTransform: 'uppercase',
     letterSpacing: 2,
   },
   controls: {
     flexDirection: 'row',
-    marginTop: 40,
+    marginTop: 48,
     gap: 16,
   },
   button: {
-    backgroundColor: '#16a34a',
+    minWidth: 120,
+    height: 56,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 28,
     paddingHorizontal: 32,
-    paddingVertical: 16,
-    borderRadius: 8,
+  },
+  buttonPressed: {
+    opacity: 0.8,
+    transform: [{ scale: 0.98 }],
   },
   cancelButton: {
     backgroundColor: '#dc2626',
